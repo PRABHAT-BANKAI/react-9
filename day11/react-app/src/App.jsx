@@ -1,14 +1,40 @@
 import React, { useEffect, useState } from "react";
+import Card from "./components/Card";
 
 const App = () => {
-  const [inputText, setInputText] = useState("");// whole control give to react
+  const [inputText, setInputText] = useState(""); // whole control give to react
   const [todolist, setTodolist] = useState(
     JSON.parse(localStorage.getItem("todoData") || [])
   );
+  const [boolean, setBoolean] = useState(false);
+  const [editIndex, setEditIndex] = useState("");
 
   function handleAdd() {
+    if (!inputText.trim()) {
+      alert("please first you have to fill input text");
+      return;
+    }
     setTodolist([...todolist, inputText]);
     setInputText("");
+  }
+  function handleDelete(index) {
+    let filterData = todolist.filter((item, i) => index != i);
+    setTodolist(filterData);
+  }
+  function handleEdit(index) {
+    setInputText(todolist[index]);
+    setEditIndex(index);
+    setBoolean(true);
+  }
+
+  function handleUpdate() {
+    let updateData = todolist.map((item, i) =>
+      i == editIndex ? inputText : item
+    );
+    setTodolist(updateData);
+
+    setInputText("");
+    setBoolean(false);
   }
 
   console.log(todolist);
@@ -26,19 +52,36 @@ const App = () => {
         placeholder="Enter you task"
         onChange={(e) => setInputText(e.target.value)}
       />
-      <button onClick={handleAdd}>Add</button>
+      {boolean ? (
+        <button onClick={handleUpdate}>Update</button>
+      ) : (
+        <button onClick={handleAdd}>Add</button>
+      )}
 
       <div>
-        {todolist.map((item) => {
+        {todolist.map((item, index) => {
           return (
             <div>
               <p>{item}</p>
-              <button>edit</button>
-              <button>Delete</button>
+              <button
+                onClick={() => {
+                  handleEdit(index);
+                }}
+              >
+                edit
+              </button>
+              <button
+                onClick={() => {
+                  handleDelete(index);
+                }}
+              >
+                Delete
+              </button>
             </div>
           );
         })}
       </div>
+      <Card/>
     </div>
   );
 };
